@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Run Main",
+            "program": "${workspaceRoot}/build/hw2_main",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build",
+            //"args": ["-i", "./tests/images/box.sbu", "-o", "./tests/images/box2.ppm"]
+        },
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Run All Tests",
+            "program": "${workspaceRoot}/build/run_all_tests",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build"
+        },
+    ],
+}

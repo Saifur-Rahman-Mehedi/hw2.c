@@ -1,0 +1,21 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cpptools-themes",
+        "ms-vscode.makefile-tools",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.cmake-tools",
+        //"vadimcn.vscode-lldb",
+        "ngtystr.ppm-pgm-viewer-for-vscode",
+        //"llvm-vs-code-extensions.vscode-clangd",
+        //"usernamehw.errorlens"
+      ]
+    }
+  }
+}

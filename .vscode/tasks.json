@@ -1,0 +1,30 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				"all"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "CMake template build task"
+		},
+		{
+			"label": "delete output files",
+			"type": "shell",
+			"command": "rm -fr ./tests/actual_outputs",
+			"detail": "Delete output files",
+		},
+		{
+			"label": "Build",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"delete output files",
+				"CMake: build",
+			]
+		}
+	]
+}
