@@ -1,4 +1,4 @@
-// #include "hw2.h"
+#include "hw2.h"
 
 #include <stdio.h>
 #include <stdlib.h>
