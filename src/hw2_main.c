@@ -103,5 +103,6 @@ int main(int argc, char *argv[]) {
         return error;
     }
 
+    printf("All arguments validated successfully.\n");
     return 0;
 }
