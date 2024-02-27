@@ -1,4 +1,3 @@
-//#include "hw2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -30,7 +29,7 @@ bool file_writable(const char *path) {
     fclose(file);
     return true;
 }
-//C4
+
 bool validate_c_argument(char *arg) {
     int row, col, width, height;
     if (sscanf(arg, "%d,%d,%d,%d", &row, &col, &width, &height) != 4) {
@@ -49,7 +48,7 @@ bool validate_p_argument(char *arg) {
 
 bool validate_r_argument(char *arg, bool c_flag) {
     if (!c_flag) {
-        return false; 
+        return false;
     }
     
     char message[256] = {0}, fontPath[256] = {0};
@@ -68,34 +67,32 @@ bool validate_r_argument(char *arg, bool c_flag) {
 int validate_args(int argc, char *argv[]) {
     bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
     char *input_file = NULL, *output_file = NULL;
-    char c_arg[1024] = {0}, p_arg[1024] = {0}, r_arg[1024] = {0};
-
-    int missing_argument = 0, duplicate_argument = 0, unrecognized_argument = 0;
+    char c_arg[1024] = {0}, p_arg[1024] = {0};
 
     int opt;
     while ((opt = getopt(argc, argv, "i:o:c:p:r:")) != -1) {
         switch (opt) {
             case 'i':
-                if (i_flag) duplicate_argument = DUPLICATE_ARGUMENT;
+                if (i_flag) return DUPLICATE_ARGUMENT;
                 i_flag = true;
-                input_file = strdup(optarg);
+                input_file = optarg;
                 break;
             case 'o':
-                if (o_flag) duplicate_argument = DUPLICATE_ARGUMENT;
+                if (o_flag) return DUPLICATE_ARGUMENT;
                 o_flag = true;
-                output_file = strdup(optarg);
+                output_file = optarg;
                 break;
             case 'c':
-                if (c_flag) duplicate_argument = DUPLICATE_ARGUMENT;
+                if (c_flag) return DUPLICATE_ARGUMENT;
                 c_flag = true;
                 strncpy(c_arg, optarg, sizeof(c_arg) - 1);
                 if (!validate_c_argument(c_arg)) return C_ARGUMENT_INVALID;
                 break;
             case 'p':
-                if (p_flag) duplicate_argument = DUPLICATE_ARGUMENT;
+                if (!c_flag) return C_ARGUMENT_MISSING;
+                if (p_flag) return DUPLICATE_ARGUMENT;
                 p_flag = true;
                 strncpy(p_arg, optarg, sizeof(p_arg) - 1);
-                if (!c_flag) return C_ARGUMENT_MISSING;
                 if (!validate_p_argument(p_arg)) return P_ARGUMENT_INVALID;
                 break;
             case 'r':
@@ -111,11 +108,7 @@ int validate_args(int argc, char *argv[]) {
         }
     }
 
-    if (!i_flag || !o_flag) missing_argument = MISSING_ARGUMENT;
-
-    if (missing_argument) return missing_argument;
-    if (unrecognized_argument) return unrecognized_argument;
-    if (duplicate_argument) return duplicate_argument;
+    if (!i_flag || !o_flag) return MISSING_ARGUMENT;
     if (!file_exists(input_file)) return INPUT_FILE_MISSING;
     if (!file_writable(output_file)) return OUTPUT_FILE_UNWRITABLE;
 
@@ -124,7 +117,6 @@ int validate_args(int argc, char *argv[]) {
 
     return 0;
 }
-
 
 int main(int argc, char *argv[]) {
     int validation_status = validate_args(argc, argv);
