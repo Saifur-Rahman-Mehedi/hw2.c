@@ -1,4 +1,4 @@
-#include "hw2.h"
+// #include "hw2.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,50 +51,38 @@ bool validate_p_argument(char *arg) {
 #include <stdbool.h>
 
 bool validate_r_argument(char *arg, bool c_flag) {
-
-    char message[256] = {0}; 
-    char fontPath[256] = {0}; 
+    (void)c_flag; // Suppress unused parameter warning
+    
+    char message[256] = {0};
+    char fontPath[256] = {0};
     int fontSize, row, col;
-
-    char *firstComma = strchr(arg, ',');
-    if (!firstComma) return false;
-    char *secondComma = strchr(firstComma + 1, ',');
-    if (!secondComma) return false;
-    int messageLength = firstComma - arg;
-    if (messageLength >= 256) return false; 
-    strncpy(message, arg, messageLength);
-    message[messageLength] = '\0';
-
-    int fontPathLength = secondComma - firstComma - 1;
-    if (fontPathLength >= 256) return false; 
-    strncpy(fontPath, firstComma + 1, fontPathLength);
-    fontPath[fontPathLength] = '\0';
-
-    if (sscanf(secondComma + 1, "%d,%d,%d", &fontSize, &row, &col) != 3) {
+    
+    // Assuming arg format is "message,fontPath,fontSize,row,col"
+    int scannedItems = sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col);
+    
+    if (scannedItems != 5) {
+        // Incorrect number of parameters
         return false;
     }
-
-    if (fontSize < 1 || fontSize > 10) return false; 
-    if (row < 0 || col < 0) return false; 
-
+    
+    if (fontSize < 1 || fontSize > 10) {
+        // Font size is out of expected range
+        return false;
+    }
+    
+    if (row < 0 || col < 0) {
+        // Row or column values are negative
+        return false;
+    }
+    
     if (!file_exists(fontPath)) {
-        return false; 
+        // Specified font path does not exist
+        return false;
     }
-
-    return true; 
-}
-
-
-int main(int argc, char *argv[]) {
-    int validation_status = validate_args(argc, argv);
-    if (validation_status != 0) {
-        fprintf(stderr, "Error: %d\n", validation_status);
-        return validation_status;
-    }
-
-    printf("All arguments validated successfully.\n");
-
-    return 0;
+    
+    // If further validation based on c_flag is required, add conditional checks here
+    
+    return true; // All validations passed
 }
 
 int validate_args(int argc, char *argv[]) {
@@ -150,6 +138,15 @@ int validate_args(int argc, char *argv[]) {
     return 0; 
 }
 
+int main(int argc, char *argv[]) {
+    int validation_status = validate_args(argc, argv);
+    if (validation_status != 0) {
+        fprintf(stderr, "Error: %d\n", validation_status);
+        return validation_status;
+    }
 
+    printf("All arguments validated successfully.\n");
 
+    return 0;
+}
 
