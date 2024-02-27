@@ -67,7 +67,6 @@ bool validate_r_argument(char *arg, bool c_flag) {
 int validate_args(int argc, char *argv[]) {
     bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
     char *input_file = NULL, *output_file = NULL;
-    char c_arg[1024] = {0}, p_arg[1024] = {0};
 
     int opt;
     while ((opt = getopt(argc, argv, "i:o:c:p:r:")) != -1) {
@@ -85,15 +84,13 @@ int validate_args(int argc, char *argv[]) {
             case 'c':
                 if (c_flag) return DUPLICATE_ARGUMENT;
                 c_flag = true;
-                strncpy(c_arg, optarg, sizeof(c_arg) - 1);
-                if (!validate_c_argument(c_arg)) return C_ARGUMENT_INVALID;
+                if (!validate_c_argument(optarg)) return C_ARGUMENT_INVALID;
                 break;
             case 'p':
                 if (!c_flag) return C_ARGUMENT_MISSING;
                 if (p_flag) return DUPLICATE_ARGUMENT;
                 p_flag = true;
-                strncpy(p_arg, optarg, sizeof(p_arg) - 1);
-                if (!validate_p_argument(p_arg)) return P_ARGUMENT_INVALID;
+                if (!validate_p_argument(optarg)) return P_ARGUMENT_INVALID;
                 break;
             case 'r':
                 if (r_flag) return DUPLICATE_ARGUMENT;
@@ -111,9 +108,6 @@ int validate_args(int argc, char *argv[]) {
     if (!i_flag || !o_flag) return MISSING_ARGUMENT;
     if (!file_exists(input_file)) return INPUT_FILE_MISSING;
     if (!file_writable(output_file)) return OUTPUT_FILE_UNWRITABLE;
-
-    free(input_file);
-    free(output_file);
 
     return 0;
 }
