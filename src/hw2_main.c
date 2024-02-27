@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-#include <math.h>
-#include <ctype.h>
-#include <stdbool.h>
+#include <unistd.h>
 #include <string.h>
-#include <unistd.h> 
+#include <stdbool.h>
 
 extern char *optarg;
 
@@ -20,7 +17,7 @@ extern char *optarg;
 #define R_ARGUMENT_INVALID 9
 
 bool file_exists(const char *path) {
-    return access(path, F_OK | R_OK) == 0;
+    return access(path, F_OK) == 0;
 }
 
 bool file_writable(const char *path) {
@@ -30,93 +27,87 @@ bool file_writable(const char *path) {
     return true;
 }
 
-bool validate_c_argument(char *arg) {
+bool validate_c_argument(const char *arg) {
     int row, col, width, height;
-    if (sscanf(arg, "%d,%d,%d,%d", &row, &col, &width, &height) != 4) {
-        return false;
-    }
-    return row >= 0 && col >= 0 && width > 0 && height > 0;
+    return sscanf(arg, "%d,%d,%d,%d", &row, &col, &width, &height) == 4 &&
+           row >= 0 && col >= 0 && width > 0 && height > 0;
 }
 
-bool validate_p_argument(char *arg) {
+bool validate_p_argument(const char *arg) {
     int row, col;
-    if (sscanf(arg, "%d,%d", &row, &col) != 2) {
-        return false;
-    }
-    return row >= 0 && col >= 0;
+    return sscanf(arg, "%d,%d", &row, &col) == 2 &&
+           row >= 0 && col >= 0;
 }
 
-bool validate_r_argument(char *arg, bool c_flag) {
-    if (!c_flag) {
-        return false;
-    }
-    
+bool validate_r_argument(const char *arg, bool c_flag) {
+    if (!c_flag) return false;
+
     char message[256] = {0}, fontPath[256] = {0};
     int fontSize, row, col;
-    if (sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col) != 5) {
-        return false;
-    }
-    
-    if (fontSize < 1 || fontSize > 10 || row < 0 || col < 0 || !file_exists(fontPath)) {
-        return false;
-    }
-
-    return true;
-}
-
-int validate_args(int argc, char *argv[]) {
-    bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
-    char *input_file = NULL, *output_file = NULL;
-
-    int opt;
-    while ((opt = getopt(argc, argv, "i:o:c:p:r:")) != -1) {
-        switch (opt) {
-            case 'i':
-                if (i_flag) return DUPLICATE_ARGUMENT;
-                i_flag = true;
-                input_file = optarg;
-                break;
-            case 'o':
-                if (o_flag) return DUPLICATE_ARGUMENT;
-                o_flag = true;
-                output_file = optarg;
-                break;
-            case 'c':
-                if (c_flag) return DUPLICATE_ARGUMENT;
-                c_flag = true;
-                if (!validate_c_argument(optarg)) return C_ARGUMENT_INVALID;
-                break;
-            case 'p':
-                if (!c_flag) return C_ARGUMENT_MISSING;
-                if (p_flag) return DUPLICATE_ARGUMENT;
-                p_flag = true;
-                if (!validate_p_argument(optarg)) return P_ARGUMENT_INVALID;
-                break;
-            case 'r':
-                if (r_flag) return DUPLICATE_ARGUMENT;
-                r_flag = true;
-                if (!validate_r_argument(optarg, c_flag)) return R_ARGUMENT_INVALID;
-                break;
-            case ':':
-                return MISSING_ARGUMENT;
-            case '?':
-            default:
-                return UNRECOGNIZED_ARGUMENT;
-        }
-    }
-
-    if (!i_flag || !o_flag) return MISSING_ARGUMENT;
-    if (!file_exists(input_file)) return INPUT_FILE_MISSING;
-    if (!file_writable(output_file)) return OUTPUT_FILE_UNWRITABLE;
-
-    return 0;
+    return sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col) == 5 &&
+           fontSize >= 1 && fontSize <= 10 && row >= 0 && col >= 0 && file_exists(fontPath);
 }
 
 int main(int argc, char *argv[]) {
-    int validation_status = validate_args(argc, argv);
-    if (validation_status != 0) {
-        fprintf(stderr, "Error: %d\n", validation_status);
-        return validation_status;
+    bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
+    char *input_file = NULL, *output_file = NULL;
+    int opt, error = 0;
+
+    while ((opt = getopt(argc, argv, ":i:o:c:p:r:")) != -1) {
+        switch (opt) {
+            case 'i':
+                if (i_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    i_flag = true;
+                    input_file = optarg;
+                }
+                break;
+            case 'o':
+                if (o_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    o_flag = true;
+                    output_file = optarg;
+                }
+                break;
+            case 'c':
+                if (c_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    c_flag = true;
+                    if (!validate_c_argument(optarg)) error = C_ARGUMENT_INVALID;
+                }
+                break;
+            case 'p':
+                if (!c_flag) error = C_ARGUMENT_MISSING;
+                else if (p_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    p_flag = true;
+                    if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
+                }
+                break;
+            case 'r':
+                if (r_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    r_flag = true;
+                    if (!validate_r_argument(optarg, c_flag)) error = R_ARGUMENT_INVALID;
+                }
+                break;
+            case ':':
+                error = MISSING_ARGUMENT;
+                break;
+            case '?':
+                error = UNRECOGNIZED_ARGUMENT;
+                break;
+        }
+        if (error) break;
+    }
+
+    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
+    if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
+    if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
+
+    if (error) {
+        fprintf(stderr, "Error: %d\n", error);
+        return error;
     }
 
     printf("All arguments validated successfully.\n");
