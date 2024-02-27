@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 extern char *optarg;
-
+//1
 #define MISSING_ARGUMENT 1
 #define UNRECOGNIZED_ARGUMENT 2
 #define DUPLICATE_ARGUMENT 3
