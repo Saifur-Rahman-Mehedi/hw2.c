@@ -30,7 +30,7 @@ bool file_writable(const char *path) {
     fclose(file);
     return true;
 }
-
+//C4
 bool validate_c_argument(char *arg) {
     int row, col, width, height;
     if (sscanf(arg, "%d,%d,%d,%d", &row, &col, &width, &height) != 4) {
