@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
-//18
+
 extern char *optarg;
 
 #define MISSING_ARGUMENT 1
@@ -21,9 +21,12 @@ bool file_exists(const char *path) {
 }
 
 bool file_writable(const char *path) {
-    FILE *file = fopen(path, "w");
+    char tempFilePath[256];
+    snprintf(tempFilePath, sizeof(tempFilePath), "%s.tmp", path);
+    FILE *file = fopen(tempFilePath, "w");
     if (file == NULL) return false;
     fclose(file);
+    remove(tempFilePath); 
     return true;
 }
 
@@ -85,7 +88,8 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'r':
-                if (r_flag) error = DUPLICATE_ARGUMENT;
+                if (!c_flag) error = C_ARGUMENT_MISSING;
+                else if (r_flag) error = DUPLICATE_ARGUMENT;
                 else {
                     r_flag = true;
                     if (!validate_r_argument(optarg, c_flag)) error = R_ARGUMENT_INVALID;
