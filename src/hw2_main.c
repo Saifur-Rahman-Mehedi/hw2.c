@@ -21,97 +21,82 @@ bool file_exists(const char *path) {
 }
 
 bool file_writable(const char *path) {
-    char tempFilePath[256];
-    snprintf(tempFilePath, sizeof(tempFilePath), "%s.tmp", path);
-    FILE *file = fopen(tempFilePath, "w");
+    FILE *file = fopen(path, "w");
     if (file == NULL) return false;
     fclose(file);
-    remove(tempFilePath); 
     return true;
 }
 
 bool validate_c_argument(const char *arg) {
-    int row, col, width, height;
-    return sscanf(arg, "%d,%d,%d,%d", &row, &col, &width, &height) == 4 &&
-           row >= 0 && col >= 0 && width > 0 && height > 0;
+    int values[4];
+    return sscanf(arg, "%d,%d,%d,%d", &values[0], &values[1], &values[2], &values[3]) == 4 &&
+           values[2] > 0 && values[3] > 0; // width and height must be positive
 }
 
 bool validate_p_argument(const char *arg) {
-    int row, col;
-    return sscanf(arg, "%d,%d", &row, &col) == 2 &&
-           row >= 0 && col >= 0;
+    int values[2];
+    return sscanf(arg, "%d,%d", &values[0], &values[1]) == 2; // Only needs to parse two integers
 }
 
-bool validate_r_argument(const char *arg, bool c_flag) {
-    if (!c_flag) return false;
-
-    char message[256] = {0}, fontPath[256] = {0};
-    int fontSize, row, col;
-    return sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col) == 5 &&
-           fontSize >= 1 && fontSize <= 10 && row >= 0 && col >= 0 && file_exists(fontPath);
+bool validate_r_argument(const char *arg) {
+    char message[256], fontPath[256];
+    int values[3];
+    return sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &values[0], &values[1], &values[2]) == 5 &&
+           values[0] > 0; // fontSize must be positive
 }
 
-int main(int argc, char *argv[]) {
+int validate_args(int argc, char *argv[]) {
     bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
     char *input_file = NULL, *output_file = NULL;
-    int opt, error = 0;
 
+    int opt, error = 0;
     while ((opt = getopt(argc, argv, ":i:o:c:p:r:")) != -1) {
         switch (opt) {
             case 'i':
-                if (i_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    i_flag = true;
-                    input_file = optarg;
-                }
+                if (i_flag) return DUPLICATE_ARGUMENT;
+                i_flag = true;
+                input_file = optarg;
                 break;
             case 'o':
-                if (o_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    o_flag = true;
-                    output_file = optarg;
-                }
+                if (o_flag) return DUPLICATE_ARGUMENT;
+                o_flag = true;
+                output_file = optarg;
                 break;
             case 'c':
-                if (c_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    c_flag = true;
-                    if (!validate_c_argument(optarg)) error = C_ARGUMENT_INVALID;
-                }
+                if (c_flag) return DUPLICATE_ARGUMENT;
+                c_flag = true;
+                if (!validate_c_argument(optarg)) return C_ARGUMENT_INVALID;
                 break;
             case 'p':
-                if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (p_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    p_flag = true;
-                    if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
-                }
+                if (p_flag) return DUPLICATE_ARGUMENT;
+                p_flag = true;
+                if (!c_flag) return C_ARGUMENT_MISSING;
+                if (!validate_p_argument(optarg)) return P_ARGUMENT_INVALID;
                 break;
             case 'r':
-                if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (r_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    r_flag = true;
-                    if (!validate_r_argument(optarg, c_flag)) error = R_ARGUMENT_INVALID;
-                }
+                if (r_flag) return DUPLICATE_ARGUMENT;
+                r_flag = true;
+                if (!validate_r_argument(optarg)) return R_ARGUMENT_INVALID;
                 break;
             case ':':
-                error = MISSING_ARGUMENT;
-                break;
+                return MISSING_ARGUMENT;
             case '?':
-                error = UNRECOGNIZED_ARGUMENT;
-                break;
+                return UNRECOGNIZED_ARGUMENT;
         }
-        if (error) break;
     }
 
-    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
-    if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
-    if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
+    if (!i_flag || !o_flag) return MISSING_ARGUMENT;
+    if (!file_exists(input_file)) return INPUT_FILE_MISSING;
+    if (!file_writable(output_file)) return OUTPUT_FILE_UNWRITABLE;
 
-    if (error) {
-        fprintf(stderr, "Error: %d\n", error);
-        return error;
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    int validation_status = validate_args(argc, argv);
+    if (validation_status != 0) {
+        fprintf(stderr, "Error: %d\n", validation_status);
+        return validation_status;
     }
 
     printf("All arguments validated successfully.\n");
