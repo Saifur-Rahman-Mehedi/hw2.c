@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
     int opt, error = 0;
 
     while ((opt = getopt(argc, argv, ":i:o:c:p:r:")) != -1) {
+        if (error) break; 
         switch (opt) {
             case 'i':
                 if (i_flag) error = DUPLICATE_ARGUMENT;
@@ -80,16 +81,16 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'p':
-                if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (p_flag) error = DUPLICATE_ARGUMENT;
+                if (p_flag) error = DUPLICATE_ARGUMENT;
+                else if (!c_flag) error = C_ARGUMENT_MISSING;
                 else {
                     p_flag = true;
                     if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
                 }
                 break;
             case 'r':
-                if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (r_flag) error = DUPLICATE_ARGUMENT;
+                if (r_flag) error = DUPLICATE_ARGUMENT;
+                else if (!c_flag) error = C_ARGUMENT_MISSING;
                 else {
                     r_flag = true;
                     if (!validate_r_argument(optarg, c_flag)) error = R_ARGUMENT_INVALID;
@@ -102,12 +103,11 @@ int main(int argc, char *argv[]) {
                 error = UNRECOGNIZED_ARGUMENT;
                 break;
         }
-        if (error) break;
     }
 
     if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
-    if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
-    if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
+    else if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
+    else if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
     if (error) {
         fprintf(stderr, "Error: %d\n", error);
