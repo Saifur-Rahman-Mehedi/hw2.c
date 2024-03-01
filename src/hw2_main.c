@@ -80,17 +80,25 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'p':
-                if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (p_flag) error = DUPLICATE_ARGUMENT;
-                else {
+                if (!c_flag) {
+                    error = C_ARGUMENT_MISSING;
+                    break; 
+                }
+                if (p_flag) {
+                    error = DUPLICATE_ARGUMENT;
+                } else {
                     p_flag = true;
                     if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
                 }
                 break;
             case 'r':
-                if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (r_flag) error = DUPLICATE_ARGUMENT;
-                else {
+                if (!c_flag) {
+                    error = C_ARGUMENT_MISSING;
+                    break; 
+                }
+                if (r_flag) {
+                    error = DUPLICATE_ARGUMENT;
+                } else {
                     r_flag = true;
                     if (!validate_r_argument(optarg, c_flag)) error = R_ARGUMENT_INVALID;
                 }
