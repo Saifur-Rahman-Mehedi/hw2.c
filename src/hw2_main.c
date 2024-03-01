@@ -82,7 +82,9 @@ int main(int argc, char *argv[]) {
             case 'p':
                 if (!c_flag) {
                     error = C_ARGUMENT_MISSING;
-                } else if (p_flag) {
+                    break; 
+                }
+                if (p_flag) {
                     error = DUPLICATE_ARGUMENT;
                 } else {
                     p_flag = true;
@@ -92,7 +94,9 @@ int main(int argc, char *argv[]) {
             case 'r':
                 if (!c_flag) {
                     error = C_ARGUMENT_MISSING;
-                } else if (r_flag) {
+                    break; 
+                }
+                if (r_flag) {
                     error = DUPLICATE_ARGUMENT;
                 } else {
                     r_flag = true;
@@ -109,7 +113,7 @@ int main(int argc, char *argv[]) {
         if (error) break;
     }
 
-    if (!i_flag || !o_flag) error = error ? error : MISSING_ARGUMENT;
+    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
     if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
     if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
