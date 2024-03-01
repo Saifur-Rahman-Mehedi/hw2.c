@@ -59,18 +59,18 @@ int main(int argc, char *argv[]) {
 
     while ((opt = getopt(argc, argv, ":i:o:c:p:r:")) != -1) {
         switch (opt) {
-           case 'i':
-                if (i_flag) {
-                    error = DUPLICATE_ARGUMENT;
-                } else {
-                    i_flag = 1;
+            case 'i':
+                if (i_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    i_flag = true;
+                    input_file = optarg;
                 }
                 break;
             case 'o':
-                if (o_flag) {
-                    error = DUPLICATE_ARGUMENT;
-                } else {
-                    o_flag = 1;
+                if (o_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    o_flag = true;
+                    output_file = optarg;
                 }
                 break;
             case 'c':
