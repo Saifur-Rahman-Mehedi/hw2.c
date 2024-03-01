@@ -52,8 +52,7 @@ bool validate_r_argument(const char *arg, bool c_flag) {
 }
 
 int main(int argc, char *argv[]) {
-    int i_flag = 0, o_flag = 0;
-    bool c_flag = false, p_flag = false, r_flag = false;
+    bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
     char *input_file = NULL, *output_file = NULL;
     int opt, error = 0;
 
@@ -100,7 +99,6 @@ int main(int argc, char *argv[]) {
                 error = MISSING_ARGUMENT;
                 break;
             case '?':
-            default: 
                 error = UNRECOGNIZED_ARGUMENT;
                 break;
         }
@@ -112,7 +110,7 @@ int main(int argc, char *argv[]) {
     if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
     if (error) {
-        printf("Error code: %d\n", error);
+        fprintf(stderr, "Error: %d\n", error);
         return error;
     }
 
