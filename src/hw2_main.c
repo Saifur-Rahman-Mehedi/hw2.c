@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
-#include <unistd.h>
 
 extern char *optarg;
 
@@ -109,11 +109,10 @@ int main(int argc, char *argv[]) {
                 error = MISSING_ARGUMENT;
                 break;
             case '?':
-                default:
-                    error = UNRECOGNIZED_ARGUMENT;
-                    break;
-
-
+            default: 
+                error = UNRECOGNIZED_ARGUMENT;
+                break;
+        }
         if (error) break;
     }
 
@@ -130,5 +129,3 @@ int main(int argc, char *argv[]) {
 
     return 0; 
 }
-
-
