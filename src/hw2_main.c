@@ -110,7 +110,6 @@ int main(int argc, char *argv[]) {
                 break;
             case '?':
                 default:
-                    fprintf(stderr, "Unrecognized or missing option\n");
                     error = UNRECOGNIZED_ARGUMENT;
                     break;
 
