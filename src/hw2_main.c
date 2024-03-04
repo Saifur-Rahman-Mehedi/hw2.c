@@ -84,26 +84,16 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'p':
-                if (!c_flag) {
-                    error = C_ARGUMENT_MISSING;
-                    break; 
-                }
                 if (p_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    p_flag = true;
-                    if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
-                }
+                else if (!c_flag) error = C_ARGUMENT_MISSING;
+                else if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
+                else p_flag = true;
                 break;
             case 'r':
-                if (!c_flag) {
-                    error = C_ARGUMENT_MISSING;
-                    break; 
-                }
                 if (r_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    r_flag = true;
-                    if (!validate_r_argument(optarg)) error = R_ARGUMENT_INVALID;
-                }
+                else if (!c_flag) error = C_ARGUMENT_MISSING;
+                else if (!validate_r_argument(optarg)) error = R_ARGUMENT_INVALID;
+                else r_flag = true;
                 break;
             case ':':
                 error = MISSING_ARGUMENT;
@@ -116,7 +106,7 @@ int main(int argc, char *argv[]) {
         if (error) break;
     }
 
-    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
+    if (!error && (!i_flag || !o_flag)) error = MISSING_ARGUMENT;
     if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
     if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
