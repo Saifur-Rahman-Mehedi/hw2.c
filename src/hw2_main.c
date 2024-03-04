@@ -26,7 +26,7 @@ bool file_writable(const char *path) {
     FILE *file = fopen(tempFilePath, "w");
     if (file == NULL) return false;
     fclose(file);
-    remove(tempFilePath); 
+    remove(tempFilePath);
     return true;
 }
 
@@ -48,11 +48,11 @@ bool validate_r_argument(const char *arg) {
     int result = sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col);
 
     if (result != 5) return false;
-    if (fontSize < 1 || fontSize > 10) return false; 
-    if (row < 0 || col < 0) return false; 
-    if (!file_exists(fontPath)) return false; 
+    if (fontSize < 1 || fontSize > 10) return false;
+    if (row < 0 || col < 0) return false;
+    if (!file_exists(fontPath)) return false;
 
-    return true; 
+    return true;
 }
 
 int main(int argc, char *argv[]) {
@@ -99,23 +99,23 @@ int main(int argc, char *argv[]) {
                 error = MISSING_ARGUMENT;
                 break;
             case '?':
-            default: 
+            default:
                 error = UNRECOGNIZED_ARGUMENT;
                 break;
         }
         if (error) break;
     }
 
-    if (!error && (!i_flag || !o_flag)) error = MISSING_ARGUMENT;
+    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
     if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
     if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
     if (error) {
         fprintf(stderr, "Error: %d\n", error);
-        return error; 
+        return error;
     }
 
     printf("All arguments validated successfully.\n");
 
-    return 0; 
+    return 0;
 }
