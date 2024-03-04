@@ -42,20 +42,20 @@ bool validate_p_argument(const char *arg) {
            row >= 0 && col >= 0;
 }
 
-bool validate_r_argument(const char *arg, bool c_flag) {
-    if (!c_flag) return false; 
+bool validate_r_argument(const char *arg) {
 
     char message[256] = {0}, fontPath[256] = {0};
     int fontSize, row, col;
     int result = sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col);
 
-    if (result != 5) return false; 
+    if (result != 5) return false;
     if (fontSize < 1 || fontSize > 10) return false; 
     if (row < 0 || col < 0) return false; 
     if (!file_exists(fontPath)) return false; 
 
-    return true;
+    return true; 
 }
+
 
 
 int main(int argc, char *argv[]) {
@@ -99,17 +99,20 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'r':
-                if (!c_flag) {
-                    error = C_ARGUMENT_MISSING;
-                    break; 
-                }
-                if (r_flag) {
-                    error = DUPLICATE_ARGUMENT;
-                } else {
-                    r_flag = true;
-                    if (!validate_r_argument(optarg, c_flag)) error = R_ARGUMENT_INVALID;
-                }
-                break;
+    if (!c_flag) {
+        error = C_ARGUMENT_MISSING;
+        break; 
+    }
+    if (r_flag) {
+        error = DUPLICATE_ARGUMENT;
+    } else {
+        r_flag = true;
+        if (!validate_r_argument(optarg)) {
+            error = R_ARGUMENT_INVALID; // Ensure this is set to 9 for an invalid -r argument
+        }
+    }
+    break;
+
             case ':':
                 error = MISSING_ARGUMENT;
                 break;
