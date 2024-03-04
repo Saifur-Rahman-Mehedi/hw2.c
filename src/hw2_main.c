@@ -43,7 +43,6 @@ bool validate_p_argument(const char *arg) {
 }
 
 bool validate_r_argument(const char *arg) {
-
     char message[256] = {0}, fontPath[256] = {0};
     int fontSize, row, col;
     int result = sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col);
@@ -55,8 +54,6 @@ bool validate_r_argument(const char *arg) {
 
     return true; 
 }
-
-
 
 int main(int argc, char *argv[]) {
     bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
@@ -91,32 +88,28 @@ int main(int argc, char *argv[]) {
                     error = C_ARGUMENT_MISSING;
                     break; 
                 }
-                if (p_flag) {
-                    error = DUPLICATE_ARGUMENT;
-                } else {
+                if (p_flag) error = DUPLICATE_ARGUMENT;
+                else {
                     p_flag = true;
                     if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
                 }
                 break;
             case 'r':
-    if (!c_flag) {
-        error = C_ARGUMENT_MISSING;
-        break; 
-    }
-    if (r_flag) {
-        error = DUPLICATE_ARGUMENT;
-    } else {
-        r_flag = true;
-        if (!validate_r_argument(optarg)) {
-            error = R_ARGUMENT_INVALID; // Ensure this is set to 9 for an invalid -r argument
-        }
-    }
-    break;
-
+                if (!c_flag) {
+                    error = C_ARGUMENT_MISSING;
+                    break; 
+                }
+                if (r_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    r_flag = true;
+                    if (!validate_r_argument(optarg)) error = R_ARGUMENT_INVALID;
+                }
+                break;
             case ':':
                 error = MISSING_ARGUMENT;
                 break;
             case '?':
+            default: 
                 error = UNRECOGNIZED_ARGUMENT;
                 break;
         }
@@ -129,9 +122,11 @@ int main(int argc, char *argv[]) {
 
     if (error) {
         fprintf(stderr, "Error: %d\n", error);
-        return error;
+        return error; 
     }
 
     printf("All arguments validated successfully.\n");
-    return 0;
+
+    return 0; 
 }
+
