@@ -43,13 +43,20 @@ bool validate_p_argument(const char *arg) {
 }
 
 bool validate_r_argument(const char *arg, bool c_flag) {
-    if (!c_flag) return false;
+    if (!c_flag) return false; 
 
     char message[256] = {0}, fontPath[256] = {0};
     int fontSize, row, col;
-    return sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col) == 5 &&
-           fontSize >= 1 && fontSize <= 10 && row >= 0 && col >= 0 && file_exists(fontPath);
+    int result = sscanf(arg, "%255[^,],%255[^,],%d,%d,%d", message, fontPath, &fontSize, &row, &col);
+
+    if (result != 5) return false; 
+    if (fontSize < 1 || fontSize > 10) return false; 
+    if (row < 0 || col < 0) return false; 
+    if (!file_exists(fontPath)) return false; 
+
+    return true;
 }
+
 
 int main(int argc, char *argv[]) {
     bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
