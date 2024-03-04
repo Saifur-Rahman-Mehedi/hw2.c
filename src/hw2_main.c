@@ -1,11 +1,14 @@
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 extern char *optarg;
 extern char *optopt;
+
+//get a lop 
+
 
 #define MISSING_ARGUMENT 1
 #define UNRECOGNIZED_ARGUMENT 2
@@ -131,4 +134,5 @@ default:
 
     return 0; 
 }
+
 
