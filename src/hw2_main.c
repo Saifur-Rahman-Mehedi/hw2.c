@@ -1,10 +1,11 @@
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
 
 extern char *optarg;
+extern char *optopt;
 
 #define MISSING_ARGUMENT 1
 #define UNRECOGNIZED_ARGUMENT 2
@@ -109,10 +110,11 @@ int main(int argc, char *argv[]) {
                 error = MISSING_ARGUMENT;
                 break;
             case '?':
-            default: 
-                error = UNRECOGNIZED_ARGUMENT;
-                break;
-        }
+default:
+    fprintf(stderr, "Unrecognized option: %c\n", optopt); 
+    error = UNRECOGNIZED_ARGUMENT;
+    break;
+
         if (error) break;
     }
 
