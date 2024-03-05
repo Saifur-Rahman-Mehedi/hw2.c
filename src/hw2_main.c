@@ -97,8 +97,9 @@ int main(int argc, char *argv[]) {
                 else r_flag = true;
                 break;
             case ':':
-                if (optopt == 'c') error = C_ARGUMENT_MISSING;
-                else error = MISSING_ARGUMENT;
+                if (optopt == 'i' || optopt == 'o' || optopt == 'c' || optopt == 'p' || optopt == 'r') {
+                    error = MISSING_ARGUMENT;
+                }
                 break;
             case '?':
             default:
@@ -109,8 +110,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
-    if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
-    if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
+    if (!error && input_file && !file_exists(input_file)) error = INPUT_FILE_MISSING;
+    if (!error && output_file && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
     if (error) {
         fprintf(stderr, "Error: %d\n", error);
