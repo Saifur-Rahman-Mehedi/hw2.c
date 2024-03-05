@@ -97,18 +97,19 @@ int main(int argc, char *argv[]) {
                 else r_flag = true;
                 break;
             case ':':
-                error = MISSING_ARGUMENT;
+                if (optopt == 'i' || optopt == 'o' || optopt == 'c' || optopt == 'p' || optopt == 'r') {
+                    error = MISSING_ARGUMENT;
+                }
                 break;
             case '?':
+            default:
                 error = UNRECOGNIZED_ARGUMENT;
                 break;
         }
         if (error) break;
     }
 
-    if (!i_flag) error = MISSING_ARGUMENT;
-    if (!o_flag) error = error ? error : MISSING_ARGUMENT; 
-
+    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
     if (!error && input_file && !file_exists(input_file)) error = INPUT_FILE_MISSING;
     if (!error && output_file && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
