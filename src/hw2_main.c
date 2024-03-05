@@ -251,15 +251,52 @@ int main(int argc, char *argv[]) {
         if (error) break;
     }
 
-    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
-    if (!error && input_file && !file_exists(input_file)) error = INPUT_FILE_MISSING;
-    if (!error && output_file && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
 
-    if (error) {
-        fprintf(stderr, "Error: %d\n", error);
-        return error;
+if (!i_flag || !o_flag) {
+    fprintf(stderr, "Error: Missing required arguments.\n");
+    return MISSING_ARGUMENT;
+}
+
+if (!error && input_file && !file_exists(input_file)) {
+    fprintf(stderr, "Error: Input file does not exist.\n");
+    return INPUT_FILE_MISSING;
+}
+
+if (!error && output_file && !file_writable(output_file)) {
+    fprintf(stderr, "Error: Output file is not writable.\n");
+    return OUTPUT_FILE_UNWRITABLE;
+}
+
+if (error) {
+    fprintf(stderr, "Error: %d\n", error);
+    return error;
+}
+
+if (i_flag) {
+    char *extension = strrchr(input_file, '.');
+    if (extension != NULL) {
+        Image image = {0}; 
+        bool load_success = false; 
+        
+        if (strcmp(extension, ".ppm") == 0) {
+            load_success = load_ppm(input_file, &image);
+        } else if (strcmp(extension, ".sbu") == 0) {
+            load_success = load_sbu(input_file, &image);
+        } else {
+            fprintf(stderr, "Unsupported file format.\n");
+        }
+        
+        if (!load_success) {
+            return 1; 
+        }
+
+        free(image.pixels); 
+    } else {
+        fprintf(stderr, "Invalid file path.\n");
+        return 1; 
     }
+}
 
-    printf("All arguments validated successfully.\n");
-    return 0;
+return 0; 
+
 }
