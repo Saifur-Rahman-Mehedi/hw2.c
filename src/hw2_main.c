@@ -201,38 +201,15 @@ bool validate_r_argument(const char *arg) {
 int main(int argc, char *argv[]) {
     bool i_flag = false, o_flag = false, c_flag = false, p_flag = false, r_flag = false;
     char *input_file = NULL, *output_file = NULL;
-    Image image; 
     int opt, error = 0;
-    
+
     while ((opt = getopt(argc, argv, ":i:o:c:p:r:")) != -1) {
         switch (opt) {
             case 'i':
-                if (i_flag) {
-                    error = DUPLICATE_ARGUMENT;
-                    break;
-                }
-                i_flag = true;
-                input_file = optarg;
-
-                const char *ext = strrchr(input_file, '.');
-                if (ext == NULL) {
-                    fprintf(stderr, "Error: File extension not found.\n");
-                    return INPUT_FILE_MISSING;
-                }
-
-                if (strcmp(ext, ".ppm") == 0) {
-                    if (!load_ppm(input_file, &image)) {
-                        fprintf(stderr, "Failed to load PPM image.\n");
-                        return INPUT_FILE_MISSING;
-                    }
-                } else if (strcmp(ext, ".sbu") == 0) {
-                    if (!load_sbu(input_file, &image)) {
-                        fprintf(stderr, "Failed to load SBU image.\n");
-                        return INPUT_FILE_MISSING;
-                    }
-                } else {
-                    fprintf(stderr, "Unsupported file format.\n");
-                    return UNRECOGNIZED_ARGUMENT;
+                if (i_flag) error = DUPLICATE_ARGUMENT;
+                else {
+                    i_flag = true;
+                    input_file = optarg;
                 }
                 break;
             case 'o':
@@ -284,6 +261,5 @@ int main(int argc, char *argv[]) {
     }
 
     printf("All arguments validated successfully.\n");
-    free(image.pixels);
     return 0;
 }
