@@ -60,55 +60,48 @@ int main(int argc, char *argv[]) {
     char *input_file = NULL, *output_file = NULL;
     int opt, error = 0;
 
-    while ((opt = getopt(argc, argv, ":i:o:c:p:r:")) != -1) {
+    while ((opt = getopt(argc, argv, "i:o:c:p:r:")) != -1) {
         switch (opt) {
             case 'i':
-                if (i_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    i_flag = true;
-                    input_file = optarg;
-                }
+                if (i_flag) { error = DUPLICATE_ARGUMENT; }
+                i_flag = true;
+                input_file = optarg;
                 break;
             case 'o':
-                if (o_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    o_flag = true;
-                    output_file = optarg;
-                }
+                if (o_flag) { error = DUPLICATE_ARGUMENT; }
+                o_flag = true;
+                output_file = optarg;
                 break;
             case 'c':
-                if (c_flag) error = DUPLICATE_ARGUMENT;
-                else {
-                    c_flag = true;
-                    if (!validate_c_argument(optarg)) error = C_ARGUMENT_INVALID;
-                }
+                if (c_flag) { error = DUPLICATE_ARGUMENT; }
+                c_flag = true;
+                if (!validate_c_argument(optarg)) { error = C_ARGUMENT_INVALID; }
                 break;
             case 'p':
-                if (p_flag) error = DUPLICATE_ARGUMENT;
-                else if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (!validate_p_argument(optarg)) error = P_ARGUMENT_INVALID;
-                else p_flag = true;
+                if (!c_flag) { error = C_ARGUMENT_MISSING; }
+                else if (p_flag) { error = DUPLICATE_ARGUMENT; }
+                else if (!validate_p_argument(optarg)) { error = P_ARGUMENT_INVALID; }
+                p_flag = true;
                 break;
             case 'r':
-                if (r_flag) error = DUPLICATE_ARGUMENT;
-                else if (!c_flag) error = C_ARGUMENT_MISSING;
-                else if (!validate_r_argument(optarg)) error = R_ARGUMENT_INVALID;
-                else r_flag = true;
+                if (!c_flag) { error = C_ARGUMENT_MISSING; }
+                else if (r_flag) { error = DUPLICATE_ARGUMENT; }
+                else if (!validate_r_argument(optarg)) { error = R_ARGUMENT_INVALID; }
+                r_flag = true;
+                break;
+            case '?':
+                error = UNRECOGNIZED_ARGUMENT;
                 break;
             case ':':
                 error = MISSING_ARGUMENT;
-                break;
-            case '?':
-            default:
-                error = UNRECOGNIZED_ARGUMENT;
                 break;
         }
         if (error) break;
     }
 
-    if (!i_flag || !o_flag) error = MISSING_ARGUMENT;
-    if (!error && !file_exists(input_file)) error = INPUT_FILE_MISSING;
-    if (!error && !file_writable(output_file)) error = OUTPUT_FILE_UNWRITABLE;
+    if (!i_flag || !o_flag) { error = MISSING_ARGUMENT; }
+    if (!error && !file_exists(input_file)) { error = INPUT_FILE_MISSING; }
+    if (!error && !file_writable(output_file)) { error = OUTPUT_FILE_UNWRITABLE; }
 
     if (error) {
         fprintf(stderr, "Error: %d\n", error);
