@@ -142,7 +142,7 @@ bool load_sbu(const char *filename, Image *image) {
                     image->pixels[pix] = colorTable[index];
                 }
             }
-        } else if (ch >= '0' && ch <= '9') { l
+        } else if (ch >= '0' && ch <= '9') { 
             ungetc(ch, file); 
             int index;
             fscanf(file, "%d", &index);
