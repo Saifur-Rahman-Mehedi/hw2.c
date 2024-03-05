@@ -95,11 +95,11 @@ int main(int argc, char *argv[]) {
             else if (!validate_r_argument(optarg)) error = R_ARGUMENT_INVALID;
             else r_flag = true;
             break;
-        case '?':
-            error = UNRECOGNIZED_ARGUMENT;
-            break;
         case ':':
             error = MISSING_ARGUMENT;
+            break;
+        default: 
+                error = UNRECOGNIZED_ARGUMENT;
             break;
     }
     if (error) break;
