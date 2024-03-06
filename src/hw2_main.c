@@ -26,6 +26,7 @@ typedef struct {
     RGBPixel *pixels;
 } Image;
 
+
 bool load_ppm(const char *filename, Image *image) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -156,8 +157,96 @@ bool load_sbu(const char *filename, Image *image) {
     fclose(file);
     return true;
 }
+bool compare_rgb_pixels(RGBPixel a, RGBPixel b) {
+    return a.r == b.r && a.g == b.g && a.b == b.b;
+}
+
+int calculate_color_palette(Image *image, RGBPixel **palette, int *paletteSize) {
+    RGBPixel *tempPalette = malloc(image->width * image->height * sizeof(RGBPixel));
+    *paletteSize = 0;
+
+    for (int i = 0; i < image->width * image->height; i++) {
+        bool found = false;
+        for (int j = 0; j < *paletteSize; j++) {
+            if (compare_rgb_pixels(image->pixels[i], tempPalette[j])) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            tempPalette[(*paletteSize)++] = image->pixels[i];
+        }
+    }
+
+    *palette = malloc(*paletteSize * sizeof(RGBPixel));
+    memcpy(*palette, tempPalette, *paletteSize * sizeof(RGBPixel));
+    free(tempPalette);
+
+    return *paletteSize; 
+}
 
 
+
+int find_palette_index(RGBPixel *palette, int paletteSize, RGBPixel pixel) {
+    for (int i = 0; i < paletteSize; i++) {
+        if (compare_rgb_pixels(pixel, palette[i])) {
+            return i;
+        }
+    }
+    return -1; 
+}
+
+bool save_ppm(const char *filename, Image *image) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        perror("Unable to open file for writing");
+        return false;
+    }
+
+    fprintf(file, "P3\n%d %d\n255\n", image->width, image->height);
+
+    for (int i = 0; i < image->width * image->height; i++) {
+        fprintf(file, "%d %d %d\t", image->pixels[i].r, image->pixels[i].g, image->pixels[i].b);
+        if ((i + 1) % image->width == 0) { 
+            fprintf(file, "\n");
+        }
+    }
+
+    fclose(file);
+    return true;
+
+}
+
+bool save_sbu(const char *filename, Image *image) {
+    FILE *file = fopen(filename, "wb"); 
+    if (!file) {
+        perror("Unable to open file for writing");
+        return false;
+    }
+
+    fprintf(file, "SBU");
+    fwrite(&image->width, sizeof(int), 1, file);
+    fwrite(&image->height, sizeof(int), 1, file);
+
+    int paletteSize = 0; 
+    RGBPixel *palette = NULL;
+    calculate_color_palette(image, &palette, &paletteSize); 
+
+    fwrite(&paletteSize, sizeof(int), 1, file);
+    for (int i = 0; i < paletteSize; i++) {
+        fwrite(&palette[i], sizeof(RGBPixel), 1, file);
+    }
+
+    for (int i = 0; i < image->width * image->height; i++) {
+        unsigned char index = find_palette_index(palette, paletteSize, image->pixels[i]);
+        fwrite(&index, sizeof(unsigned char), 1, file);
+    }
+
+    fclose(file);
+    free(palette);
+
+    return true;
+}
 
 bool file_exists(const char *path) {
     return access(path, F_OK) == 0;
@@ -297,6 +386,39 @@ if (i_flag) {
     }
 }
 
+    Image image;
+    bool load_success = false, save_success = false;
+
+    char *in_extension = strrchr(input_file, '.');
+    if (strcmp(in_extension, ".ppm") == 0) {
+        load_success = load_ppm(input_file, &image);
+    } else if (strcmp(in_extension, ".sbu") == 0) {
+        load_success = load_sbu(input_file, &image);
+    } else {
+        fprintf(stderr, "Unsupported input file format.\n");
+    }
+
+    if (!load_success) {
+        fprintf(stderr, "Failed to load the input file.\n");
+        return 1;
+    }
+
+    char *out_extension = strrchr(output_file, '.');
+    if (strcmp(out_extension, ".ppm") == 0) {
+        save_success = save_ppm(output_file, &image);
+    } else if (strcmp(out_extension, ".sbu") == 0) {
+        save_success = save_sbu(output_file, &image);
+    } else {
+        fprintf(stderr, "Unsupported output file format.\n");
+    }
+
+    if (!save_success) {
+        fprintf(stderr, "Failed to save the output file.\n");
+        free(image.pixels); 
+        return 1;
+    }
+
+    free(image.pixels);
 return 0; 
 
 }
